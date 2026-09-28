@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sekbang 73 Family - Keuangan</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#1e3a8a', // Blue 900
+                        secondary: '#2563eb', // Blue 600
+                        accent: '#f59e0b', // Amber 500
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        .slide-up { animation: slideUp 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        
+        /* Loading Overlay */
+        #loading-overlay { backdrop-filter: blur(4px); }
+        .spinner { border: 4px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 4px solid white; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body class="text-gray-800 antialiased h-screen flex flex-col">
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 z-[100] bg-gray-900 bg-opacity-60 flex flex-col justify-center items-center hidden">
+        <div class="spinner mb-4"></div>
+        <p class="text-white font-medium animate-pulse" id="loading-text">Memproses...</p>
+    </div>
+
+    <!-- VIEW: AUTHENTICATION -->
+    <div id="view-auth" class="flex-grow flex items-center justify-center p-4 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-primary min-h-screen">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden slide-up">
+            <div class="bg-primary p-6 text-center text-white relative">
+                <i class="fa-solid fa-plane-up text-4xl mb-3 text-accent drop-shadow-md"></i>
+                <h1 class="text-2xl font-bold tracking-tight">Sekbang 73 Family</h1>
+                <p class="text-blue-200 text-sm mt-1">Sistem Informasi Keuangan</p>
+                <div class="absolute -bottom-4 left-0 right-0 h-8 bg-white" style="border-radius: 50% 50% 0 0;"></div>
+            </div>
+            
+            <div class="p-8 pt-4">
+                <!-- Auth Tabs -->
+                <div class="flex border-b border-gray-200 mb-6">
+                    <button id="tab-login" class="flex-1 py-2 text-center font-semibold text-primary border-b-2 border-primary transition-colors">Masuk</button>
+                    <button id="tab-register" class="flex-1 py-2 text-center font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-600 transition-colors">Daftar</button>
+                </div>
+
+                <!-- Error Message Box -->
+                <div id="auth-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm flex items-start gap-2">
+                    <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
+                    <span id="auth-error-msg">Error message</span>
+                </div>
+
+                <!-- Form Login -->
+                <form id="login-form" class="space-y-4 fade-in block">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email / Username <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-user text-gray-400"></i>
+                            </div>
+                            <input type="text" id="login-email" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none transition-all" placeholder="admin atau email Anda" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Password <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-lock text-gray-400"></i>
+                            </div>
+                            <input type="password" id="login-password" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none transition-all" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-secondary hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg shadow-md transition-all transform hover:scale-[1.02] active:scale-[0.98] mt-2">
+                        Masuk ke Sistem
+                    </button>
+                </form>
+
+                <!-- Form Register -->
+                <form id="register-form" class="space-y-4 fade-in hidden">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
+                        <input type="text" id="reg-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary outline-none" placeholder="Nama Anda" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+                        <input type="email" id="reg-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary outline-none" placeholder="email@contoh.com" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Password <span class="text-red-500">*</span></label>
+                        <input type="password" id="reg-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary outline-none" placeholder="Minimal 6 karakter" minlength="6" required>
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-lg shadow-md transition-all transform hover:scale-[1.02] active:scale-[0.98] mt-2">
+                        Buat Akun
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW: MAIN APPLICATION (Dashboard & Users) -->
+    <div id="view-app" class="hidden flex-col min-h-screen bg-gray-50 w-full">
+        <!-- Navbar -->
+        <nav class="bg-primary text-white shadow-lg sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-plane-up text-xl mr-3 text-accent"></i>
+                        <span class="font-bold text-lg sm:text-xl tracking-tight truncate">Sekbang 73 Keuangan</span>
+                    </div>
+                    <div class="flex items-center gap-2 sm:gap-4 overflow-x-auto no-scrollbar">
+                        <!-- Navigation Links -->
+                        <div id="nav-links" class="flex gap-2 sm:gap-4 mr-2">
+                            <button id="nav-dashboard" class="text-white font-medium border-b-2 border-accent transition-colors pb-1 text-sm sm:text-base whitespace-nowrap">Dashboard</button>
+                            <button id="nav-users" class="text-gray-300 hover:text-white font-medium border-b-2 border-transparent transition-colors pb-1 hidden text-sm sm:text-base whitespace-nowrap">Kelola User</button>
+                        </div>
+                        <div class="hidden sm:flex items-center text-sm bg-blue-800 px-3 py-1.5 rounded-full whitespace-nowrap">
+                            <i class="fa-solid fa-user-circle mr-2"></i>
+                            <span id="user-display-name">User</span>
+                            <span id="admin-badge" class="ml-2 bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden uppercase tracking-wider">Admin</span>
+                        </div>
+                        <button id="btn-logout" class="text-white hover:text-red-300 transition-colors p-2 rounded-full focus:outline-none flex-shrink-0" title="Keluar">
+                            <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="flex-grow w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6">
+            
+            <!-- SECTION: DASHBOARD -->
+            <div id="section-dashboard" class="block">
+                <!-- Header Dashboard & Summary Cards -->
+                <div class="mb-6 fade-in">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Card: Total Kas -->
+                        <div class="glass-panel rounded-xl p-5 shadow-sm border-l-4 border-blue-500 hover:shadow-md transition-shadow relative overflow-hidden">
+                            <div class="absolute -right-4 -top-4 opacity-10"><i class="fa-solid fa-wallet text-6xl"></i></div>
+                            <p class="text-sm font-medium text-gray-500 mb-1">Saldo Kas Aktif</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="summary-balance">Rp 0</h3>
+                        </div>
+                        <!-- Card: Pemasukan -->
+                        <div class="glass-panel rounded-xl p-5 shadow-sm border-l-4 border-green-500 hover:shadow-md transition-shadow relative overflow-hidden">
+                            <div class="absolute -right-4 -top-4 opacity-10"><i class="fa-solid fa-arrow-trend-up text-6xl text-green-500"></i></div>
+                            <p class="text-sm font-medium text-gray-500 mb-1">Total Pemasukan</p>
+                            <h3 class="text-2xl font-bold text-green-600" id="summary-income">Rp 0</h3>
+                        </div>
+                        <!-- Card: Pengeluaran -->
+                        <div class="glass-panel rounded-xl p-5 shadow-sm border-l-4 border-red-500 hover:shadow-md transition-shadow relative overflow-hidden">
+                            <div class="absolute -right-4 -top-4 opacity-10"><i class="fa-solid fa-arrow-trend-down text-6xl text-red-500"></i></div>
+                            <p class="text-sm font-medium text-gray-500 mb-1">Total Pengeluaran</p>
+                            <h3 class="text-2xl font-bold text-red-600" id="summary-expense">Rp 0</h3>
+                        </div>
+                        <!-- Card: Tabungan Reuni -->
+                        <div class="glass-panel rounded-xl p-5 shadow-sm border-l-4 border-accent hover:shadow-md transition-shadow relative overflow-hidden">
+                            <div class="absolute -right-4 -top-4 opacity-10"><i class="fa-solid fa-piggy-bank text-6xl text-accent"></i></div>
+                            <p class="text-sm font-medium text-gray-500 mb-1">Tabungan Reuni</p>
+                            <h3 class="text-2xl font-bold text-amber-600" id="summary-reunion">Rp 0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Bar & Filter -->
+                <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 fade-in bg-white p-4 rounded-xl shadow-sm">
+                    <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                        <select id="filter-month" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-secondary focus:border-secondary block p-2 outline-none cursor-pointer">
+                            <option value="all">Semua Bulan</option>
+                            <!-- Pilihan bulan akan diisi via JS -->
+                        </select>
+                        <select id="filter-type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-secondary focus:border-secondary block p-2 outline-none cursor-pointer">
+                            <option value="all">Semua Kategori</option>
+                            <option value="income">Kas Masuk</option>
+                            <option value="expense">Pengeluaran</option>
+                            <option value="reunion">Tabungan Reuni</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                        <button id="btn-export-csv" class="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-file-csv"></i> Unduh Laporan
+                        </button>
+                        <button id="btn-add-transaction" class="flex-1 sm:flex-none bg-secondary hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow text-sm font-medium transition-colors flex items-center justify-center gap-2 hidden">
+                            <i class="fa-solid fa-plus"></i> Catat Transaksi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Transaction Table -->
+                <div class="glass-panel rounded-xl shadow-sm overflow-hidden flex flex-col fade-in">
+                    <div class="p-4 sm:p-5 border-b border-gray-200 bg-white flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-list-ul mr-2 text-primary"></i> Riwayat Transaksi</h3>
+                        <span id="record-count" class="text-xs bg-blue-100 text-blue-800 py-1 px-2 rounded-full font-medium">0 Data</span>
+                    </div>
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full text-sm text-left text-gray-600 whitespace-nowrap min-w-[600px]">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3">Tanggal</th>
+                                    <th scope="col" class="px-4 py-3">Kategori</th>
+                                    <th scope="col" class="px-4 py-3">Atas Nama</th>
+                                    <th scope="col" class="px-4 py-3">Keterangan</th>
+                                    <th scope="col" class="px-4 py-3 text-right">Nominal</th>
+                                    <th scope="col" class="px-4 py-3 text-center" id="th-action" style="display: none;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transaction-table-body">
+                                <tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- End Dashboard -->
+
+            <!-- SECTION: MANAJEMEN USER -->
+            <div id="section-users" class="hidden fade-in">
+                <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Manajemen Anggota</h2>
+                        <p class="text-gray-500 text-sm">Kelola data anggota Sekbang 73 Family</p>
+                    </div>
+                    <button id="btn-add-user" class="bg-secondary hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg shadow flex items-center gap-2 transition-colors text-sm font-medium">
+                        <i class="fa-solid fa-user-plus"></i> Tambah User Baru
+                    </button>
+                </div>
+
+                <div class="glass-panel rounded-xl shadow-sm overflow-hidden flex flex-col">
+                    <div class="p-4 sm:p-5 border-b border-gray-200 bg-white">
+                        <h3 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-users mr-2 text-primary"></i> Daftar Pengguna Terdaftar</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-600 min-w-[500px]">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3">Nama Lengkap</th>
+                                    <th scope="col" class="px-4 py-3">Email / Username</th>
+                                    <th scope="col" class="px-4 py-3">Peran (Role)</th>
+                                    <th scope="col" class="px-4 py-3">Tanggal Daftar</th>
+                                    <th scope="col" class="px-4 py-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">Memuat data user...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- End Manajemen User -->
+            
+            <footer class="mt-8 text-center text-sm text-gray-400 py-4 border-t border-gray-200">
+                &copy; <span id="current-year"></span> Sekbang 73 Family. Hak Cipta Dilindungi.
+            </footer>
+        </main>
+    </div>
+
+    <!-- MODAL: FORM TRANSAKSI -->
+    <div id="transaction-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden transform transition-all slide-up">
+            <div class="bg-primary text-white px-5 py-4 flex justify-between items-center">
+                <h3 class="text-lg font-bold flex items-center" id="modal-title">
+                    <i class="fa-solid fa-pen-to-square mr-2"></i> Form Transaksi
+                </h3>
+                <button id="btn-close-modal" class="text-gray-300 hover:text-white focus:outline-none rounded-full p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="transaction-form" class="p-5 sm:p-6 space-y-4">
+                <input type="hidden" id="trans-id">
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipe Transaksi <span class="text-red-500">*</span></label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="trans-type" value="income" class="peer sr-only" required>
+                            <div class="text-center px-2 py-2 border rounded-lg text-sm peer-checked:bg-green-50 peer-checked:border-green-500 peer-checked:text-green-700 hover:bg-gray-50 transition-colors">
+                                <i class="fa-solid fa-arrow-down block mb-1"></i> Kas Masuk
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="trans-type" value="expense" class="peer sr-only">
+                            <div class="text-center px-2 py-2 border rounded-lg text-sm peer-checked:bg-red-50 peer-checked:border-red-500 peer-checked:text-red-700 hover:bg-gray-50 transition-colors">
+                                <i class="fa-solid fa-arrow-up block mb-1"></i> Pengeluaran
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="trans-type" value="reunion" class="peer sr-only">
+                            <div class="text-center px-2 py-2 border rounded-lg text-sm peer-checked:bg-amber-50 peer-checked:border-amber-500 peer-checked:text-amber-700 hover:bg-gray-50 transition-colors">
+                                <i class="fa-solid fa-piggy-bank block mb-1"></i> T. Reuni
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nominal (Rp) <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none font-medium text-gray-500">Rp</div>
+                        <input type="number" id="trans-amount" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none font-medium" placeholder="0" min="1" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal <span class="text-red-500">*</span></label>
+                        <input type="date" id="trans-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Atas Nama (Input By)</label>
+                        <input type="text" id="trans-input-by" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none" placeholder="Nama anggota/pembayar">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Keterangan <span class="text-red-500">*</span></label>
+                    <textarea id="trans-desc" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none resize-none" placeholder="Contoh: Iuran kas September, Konsumsi rapat..." required></textarea>
+                </div>
+
+                <div class="pt-3 flex justify-end gap-3 border-t border-gray-100">
+                    <button type="button" id="btn-cancel-modal" class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors text-sm">Batal</button>
+                    <button type="submit" class="px-5 py-2 bg-primary hover:bg-blue-800 text-white rounded-lg font-medium shadow-md transition-colors flex items-center text-sm">
+                        <i class="fa-solid fa-floppy-disk mr-2"></i> Simpan Data
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: FORM USER -->
+    <div id="user-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all">
+            <div class="bg-secondary text-white px-5 py-4 flex justify-between items-center">
+                <h3 class="text-lg font-bold" id="user-modal-title"><i class="fa-solid fa-user-pen mr-2"></i> Form Data User</h3>
+                <button id="btn-close-user-modal" class="text-gray-200 hover:text-white focus:outline-none">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="user-form" class="p-5 sm:p-6 space-y-4">
+                <input type="hidden" id="user-id">
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
+                    <input type="text" id="user-form-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none" placeholder="Nama anggota" required>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+                    <input type="email" id="user-form-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none" placeholder="email@contoh.com" required>
+                    <p class="text-xs text-gray-500 mt-1" id="user-email-help">Email digunakan untuk login.</p>
+                </div>
+
+                <div id="user-password-group">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password <span class="text-red-500">*</span></label>
+                    <input type="text" id="user-form-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none" placeholder="Minimal 6 karakter" minlength="6">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Peran (Role) <span class="text-red-500">*</span></label>
+                    <select id="user-form-role" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none" required>
+                        <option value="member">Anggota (Member)</option>
+                        <option value="admin">Administrator</option>
+                    </select>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-3 border-t border-gray-100">
+                    <button type="button" id="btn-cancel-user-modal" class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors text-sm">Batal</button>
+                    <button type="submit" class="px-5 py-2 bg-secondary hover:bg-blue-700 text-white rounded-lg font-medium shadow-md transition-colors flex items-center text-sm">
+                        <i class="fa-solid fa-floppy-disk mr-2"></i> Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: HAPUS TRANSAKSI KONFIRMASI -->
+    <div id="delete-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center transform transition-all scale-100">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-triangle-exclamation text-3xl text-red-500"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Hapus Transaksi?</h3>
+            <p class="text-gray-500 text-sm mb-6">Data yang dihapus tidak dapat dikembalikan. Apakah Anda yakin?</p>
+            <div class="flex justify-center gap-3">
+                <button id="btn-cancel-delete" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium text-sm transition-colors">Batal</button>
+                <button id="btn-confirm-delete" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-sm transition-colors shadow-sm">Ya, Hapus Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: HAPUS USER KONFIRMASI -->
+    <div id="delete-user-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-overlay p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden p-6 text-center transform transition-all scale-100">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-user-xmark text-3xl text-red-500"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Hapus Data User?</h3>
+            <p class="text-gray-500 text-sm mb-6">Data profil user akan dihapus dari sistem. Lanjutkan?</p>
+            <div class="flex justify-center gap-3">
+                <button id="btn-cancel-delete-user" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium text-sm transition-colors">Batal</button>
+                <button id="btn-confirm-delete-user" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-sm transition-colors shadow-sm">Ya, Hapus User</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC (Firebase Module) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'sekbang73-finance-app';
+        let app, db, auth;
+        let currentUser = null;
+        let isAdmin = false;
+        let hasExplicitlyLoggedOut = false;
+        
+        let transactions = [];
+        let usersData = [];
+        let unsubscribeTransactions = null;
+        let unsubscribeUsers = null;
+        let currentMonthFilter = 'all';
+        let currentTypeFilter = 'all';
+        let transactionToDelete = null;
+        let userToDelete = null; // State untuk menghapus user
+
+        try {
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+                apiKey: "AIzaSyBiiTUcULMRCM_4FyAX8nSx1Rj1xCdJGSw",
+                authDomain: "ecrew-absensi-183ac.firebaseapp.com",
+                projectId: "ecrew-absensi-183ac",
+                storageBucket: "ecrew-absensi-183ac.firebasestorage.app",
+                messagingSenderId: "1080047836290",
+                appId: "1:1080047836290:web:9bbcb84e0b771b79e1289b",
+                measurementId: "G-ZSXMY75R6E"
+            };
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            console.log("Firebase initialized");
+        } catch (error) {
+            console.error("Firebase init error:", error);
+            showError("Gagal menghubungkan ke database server.");
+        }
+
+        // --- DOM Elements ---
+        const views = { auth: document.getElementById('view-auth'), app: document.getElementById('view-app') };
+        const loading = { overlay: document.getElementById('loading-overlay'), text: document.getElementById('loading-text') };
+        
+        const authEls = {
+            tabLogin: document.getElementById('tab-login'), tabRegister: document.getElementById('tab-register'),
+            formLogin: document.getElementById('login-form'), formRegister: document.getElementById('register-form'),
+            errorBox: document.getElementById('auth-error'), errorMsg: document.getElementById('auth-error-msg'),
+            logoutBtn: document.getElementById('btn-logout'), userDisplay: document.getElementById('user-display-name'),
+            adminBadge: document.getElementById('admin-badge')
+        };
+        const navEls = {
+            btnDashboard: document.getElementById('nav-dashboard'), btnUsers: document.getElementById('nav-users'),
+            secDashboard: document.getElementById('section-dashboard'), secUsers: document.getElementById('section-users')
+        };
+        const appEls = {
+            btnAdd: document.getElementById('btn-add-transaction'), 
+            filterMonth: document.getElementById('filter-month'), filterType: document.getElementById('filter-type'),
+            btnExport: document.getElementById('btn-export-csv'),
+            tableBody: document.getElementById('transaction-table-body'), thAction: document.getElementById('th-action'),
+            sumBalance: document.getElementById('summary-balance'), sumIncome: document.getElementById('summary-income'),
+            sumExpense: document.getElementById('summary-expense'), sumReunion: document.getElementById('summary-reunion'),
+            recordCount: document.getElementById('record-count')
+        };
+        const modalEls = {
+            container: document.getElementById('transaction-modal'), title: document.getElementById('modal-title'),
+            form: document.getElementById('transaction-form'), btnClose: document.getElementById('btn-close-modal'),
+            btnCancel: document.getElementById('btn-cancel-modal'), idInput: document.getElementById('trans-id'),
+            amountInput: document.getElementById('trans-amount'), dateInput: document.getElementById('trans-date'),
+            inputByInput: document.getElementById('trans-input-by'), descInput: document.getElementById('trans-desc'),
+            delete: document.getElementById('delete-modal'), btnCancelDel: document.getElementById('btn-cancel-delete'),
+            btnConfirmDel: document.getElementById('btn-confirm-delete')
+        };
+        const usersEls = {
+            btnAddUser: document.getElementById('btn-add-user'), tableBody: document.getElementById('users-table-body'),
+            modal: document.getElementById('user-modal'), title: document.getElementById('user-modal-title'),
+            form: document.getElementById('user-form'), btnClose: document.getElementById('btn-close-user-modal'),
+            btnCancel: document.getElementById('btn-cancel-user-modal'), idInput: document.getElementById('user-id'),
+            nameInput: document.getElementById('user-form-name'), emailInput: document.getElementById('user-form-email'),
+            passwordInput: document.getElementById('user-form-password'), passwordGroup: document.getElementById('user-password-group'),
+            roleInput: document.getElementById('user-form-role'), emailHelp: document.getElementById('user-email-help'),
+            // Elements for Delete User Confirmation
+            deleteModal: document.getElementById('delete-user-modal'), btnCancelDel: document.getElementById('btn-cancel-delete-user'),
+            btnConfirmDel: document.getElementById('btn-confirm-delete-user')
+        };
+
+        // --- Utils ---
+        const formatRupiah = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        const formatDate = (dateString) => {
+            const options = { day: '2-digit', month: 'short', year: 'numeric' };
+            return new Date(dateString).toLocaleDateString('id-ID', options);
+        };
+        const getMonthYear = (dateString) => {
+            const d = new Date(dateString);
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        };
+        const getMonthName = (monthYear) => {
+            if(!monthYear || monthYear==='all') return 'Semua Bulan';
+            const [y, m] = monthYear.split('-');
+            const d = new Date(y, parseInt(m)-1, 1);
+            return d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+        };
+        
+        function showLoading(show, text="Memproses...") {
+            loading.text.textContent = text;
+            if (show) { loading.overlay.classList.remove('hidden'); loading.overlay.classList.add('flex'); }
+            else { loading.overlay.classList.add('hidden'); loading.overlay.classList.remove('flex'); }
+        }
+        function showError(msg) {
+            if(!msg) { authEls.errorBox.classList.add('hidden'); return; }
+            authEls.errorMsg.textContent = msg;
+            authEls.errorBox.classList.remove('hidden');
+        }
+
+        // --- AUTH LOGIC ---
+        authEls.tabLogin.addEventListener('click', () => {
+            authEls.tabLogin.classList.replace('text-gray-400', 'text-primary'); authEls.tabLogin.classList.replace('border-transparent', 'border-primary');
+            authEls.tabRegister.classList.replace('text-primary', 'text-gray-400'); authEls.tabRegister.classList.replace('border-primary', 'border-transparent');
+            authEls.formLogin.classList.remove('hidden'); authEls.formRegister.classList.add('hidden'); showError('');
+        });
+        authEls.tabRegister.addEventListener('click', () => {
+            authEls.tabRegister.classList.replace('text-gray-400', 'text-primary'); authEls.tabRegister.classList.replace('border-transparent', 'border-primary');
+            authEls.tabLogin.classList.replace('text-primary', 'text-gray-400'); authEls.tabLogin.classList.replace('border-primary', 'border-transparent');
+            authEls.formRegister.classList.remove('hidden'); authEls.formLogin.classList.add('hidden'); showError('');
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            showLoading(false);
+            if (user && !hasExplicitlyLoggedOut) {
+                currentUser = user;
+                isAdmin = user.email === 'admin@sekbang73.family';
+                
+                authEls.userDisplay.textContent = user.displayName || (isAdmin ? "Admin Sekbang73" : "Anggota");
+                if(isAdmin) {
+                    authEls.adminBadge.classList.remove('hidden');
+                    appEls.thAction.style.display = 'table-cell';
+                    appEls.btnAdd.classList.remove('hidden');
+                    navEls.btnUsers.classList.remove('hidden');
+                } else {
+                    authEls.adminBadge.classList.add('hidden');
+                    appEls.thAction.style.display = 'none'; 
+                    appEls.btnAdd.classList.add('hidden');
+                    navEls.btnUsers.classList.add('hidden');
+                    switchTab('dashboard');
+                }
+
+                views.auth.classList.add('hidden');
+                views.app.classList.remove('hidden');
+                views.app.classList.add('flex');
+                
+                loadData();
+                checkAdminRoleFromFirestore(user.uid);
+            } else {
+                currentUser = null;
+                isAdmin = false;
+                views.app.classList.add('hidden');
+                views.app.classList.remove('flex');
+                views.auth.classList.remove('hidden');
+                
+                if (unsubscribeTransactions) { unsubscribeTransactions(); unsubscribeTransactions = null; }
+                if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
+                
+                if(!hasExplicitlyLoggedOut && typeof __env !== 'undefined' && __env.USER_TOKEN) {
+                    showLoading(true, "Auto-login...");
+                    try { await signInWithCustomToken(auth, __env.USER_TOKEN); } catch (e) { showLoading(false); }
+                }
+            }
+        });
+
+        async function checkAdminRoleFromFirestore(uid) {
+            try {
+                const userDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', uid));
+                if (userDoc.exists() && userDoc.data().role === 'admin') {
+                    isAdmin = true;
+                    authEls.adminBadge.classList.remove('hidden');
+                    appEls.thAction.style.display = 'table-cell';
+                    appEls.btnAdd.classList.remove('hidden');
+                    navEls.btnUsers.classList.remove('hidden');
+                    renderTable();
+                }
+            } catch(e) {}
+        }
+
+        authEls.formLogin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            let email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            
+            if (email.toLowerCase() === 'admin') email = 'admin@sekbang73.family';
+            if (!email.includes('@')) email = `${email}@sekbang73.family`; // Fallback for simple usernames
+            
+            showError(''); showLoading(true, "Memverifikasi...");
+            hasExplicitlyLoggedOut = false; 
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                if(email === 'admin@sekbang73.family' && error.code === 'auth/invalid-credential' && password === 'wiraangkasa73') {
+                    try {
+                        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+                        await updateProfile(userCred.user, { displayName: "Admin Keuangan" });
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', userCred.user.uid), {
+                            name: "Admin Keuangan", email: email, role: "admin", createdAt: serverTimestamp()
+                        });
+                    } catch (createErr) {
+                        showError("Gagal setup akun admin: " + createErr.message); showLoading(false);
+                    }
+                } else {
+                    showError("Email/Username atau Password salah."); showLoading(false);
+                }
+            }
+        });
+
+        authEls.formRegister.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            
+            showError(''); showLoading(true, "Membuat akun...");
+            hasExplicitlyLoggedOut = false;
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(userCredential.user, { displayName: name });
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', userCredential.user.uid), {
+                    name: name, email: email, role: "member", createdAt: serverTimestamp()
+                });
+            } catch (error) {
+                showLoading(false);
+                if (error.code === 'auth/email-already-in-use') showError("Email sudah terdaftar.");
+                else if (error.code === 'auth/weak-password') showError("Password terlalu lemah (min. 6 karakter).");
+                else showError("Gagal mendaftar: " + error.message);
+            }
+        });
+
+        authEls.logoutBtn.addEventListener('click', async () => {
+            showLoading(true, "Keluar...");
+            try {
+                hasExplicitlyLoggedOut = true;
+                await signOut(auth);
+            } catch (error) {
+                console.error("Logout error", error);
+            }
+            showLoading(false);
+        });
+
+        // --- NAVIGATION TABS ---
+        function switchTab(tab) {
+            if (tab === 'dashboard') {
+                navEls.btnDashboard.classList.add('text-white', 'border-accent');
+                navEls.btnDashboard.classList.remove('text-gray-300', 'border-transparent');
+                navEls.btnUsers.classList.remove('text-white', 'border-accent');
+                navEls.btnUsers.classList.add('text-gray-300', 'border-transparent');
+                
+                navEls.secDashboard.classList.remove('hidden');
+                navEls.secUsers.classList.add('hidden');
+            } else if (tab === 'users' && isAdmin) {
+                navEls.btnUsers.classList.add('text-white', 'border-accent');
+                navEls.btnUsers.classList.remove('text-gray-300', 'border-transparent');
+                navEls.btnDashboard.classList.remove('text-white', 'border-accent');
+                navEls.btnDashboard.classList.add('text-gray-300', 'border-transparent');
+                
+                navEls.secUsers.classList.remove('hidden');
+                navEls.secDashboard.classList.add('hidden');
+                loadUsersData(); 
+            }
+        }
+        navEls.btnDashboard.addEventListener('click', () => switchTab('dashboard'));
+        navEls.btnUsers.addEventListener('click', () => switchTab('users'));
+
+
+        // --- USER MANAGEMENT LOGIC ---
+        function loadUsersData() {
+            if (!currentUser || !isAdmin || !db) return;
+            const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
+            const q = query(usersRef);
+
+            showLoading(true, "Memuat anggota...");
+            if (unsubscribeUsers) unsubscribeUsers();
+
+            unsubscribeUsers = onSnapshot(q, (snapshot) => {
+                usersData = [];
+                snapshot.forEach((doc) => { usersData.push({ id: doc.id, ...doc.data() }); });
+                renderUsersTable();
+                showLoading(false);
+            }, (error) => { showLoading(false); });
+        }
+
+        function renderUsersTable() {
+            usersEls.tableBody.innerHTML = '';
+            if (usersData.length === 0) {
+                usersEls.tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">Belum ada data user.</td></tr>`; return;
+            }
+
+            usersData.sort((a, b) => {
+                if (a.role === 'admin' && b.role !== 'admin') return -1;
+                if (a.role !== 'admin' && b.role === 'admin') return 1;
+                return (a.name || '').localeCompare(b.name || '');
+            });
+
+            usersData.forEach(u => {
+                const tr = document.createElement('tr');
+                tr.className = 'bg-white border-b hover:bg-gray-50 transition-colors';
+                
+                const roleBadge = u.role === 'admin' 
+                    ? '<span class="bg-blue-100 text-primary text-xs font-medium px-2.5 py-1 rounded border border-blue-200"><i class="fa-solid fa-shield-halved mr-1"></i> Admin</span>' 
+                    : '<span class="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-1 rounded border border-gray-200"><i class="fa-solid fa-user mr-1"></i> Member</span>';
+                
+                let dateStr = '-';
+                if (u.createdAt) {
+                    const d = u.createdAt.toDate ? u.createdAt.toDate() : new Date(u.createdAt);
+                    dateStr = formatDate(d);
+                }
+
+                const isRoot = u.email === 'admin@sekbang73.family';
+                // Penyesuaian tombol aksi user agar senada dengan tabel transaksi
+                const actionBtn = isRoot 
+                    ? `<span class="text-xs text-gray-400 italic font-medium"><i class="fa-solid fa-lock text-xs mr-1"></i> Root</span>`
+                    : `<div class="flex justify-center gap-2">
+                           <button onclick="editUser('${u.id}')" class="text-secondary hover:bg-blue-100 p-1.5 rounded transition-colors" title="Edit Profil"><i class="fa-solid fa-pen-to-square"></i></button>
+                           <button onclick="confirmDeleteUser('${u.id}')" class="text-red-500 hover:bg-red-100 p-1.5 rounded transition-colors" title="Hapus User"><i class="fa-solid fa-trash-can"></i></button>
+                       </div>`;
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-gray-900">${u.name || '-'}</td>
+                    <td class="px-4 py-3 text-gray-500">${u.email || '-'}</td>
+                    <td class="px-4 py-3">${roleBadge}</td>
+                    <td class="px-4 py-3 text-gray-500">${dateStr}</td>
+                    <td class="px-4 py-3 text-center">${actionBtn}</td>
+                `;
+                usersEls.tableBody.appendChild(tr);
+            });
+        }
+
+        const openUserModal = (isEdit = false) => {
+            usersEls.modal.classList.remove('hidden'); usersEls.modal.classList.add('flex');
+            if(!isEdit) {
+                usersEls.title.innerHTML = '<i class="fa-solid fa-user-plus mr-2"></i> Tambah User Baru';
+                usersEls.passwordGroup.classList.remove('hidden'); usersEls.passwordInput.required = true;
+                usersEls.emailInput.readOnly = false; usersEls.emailInput.classList.remove('bg-gray-100');
+                usersEls.emailHelp.textContent = "Email digunakan untuk login.";
+            } else {
+                usersEls.title.innerHTML = '<i class="fa-solid fa-user-pen mr-2"></i> Edit Data User';
+                usersEls.passwordGroup.classList.add('hidden'); usersEls.passwordInput.required = false;
+                usersEls.emailInput.readOnly = true; usersEls.emailInput.classList.add('bg-gray-100');
+                usersEls.emailHelp.textContent = "Email terikat pada sistem Auth (tidak bisa diubah).";
+            }
+        };
+
+        const closeUserModal = () => {
+            usersEls.modal.classList.add('hidden'); usersEls.modal.classList.remove('flex');
+            usersEls.form.reset(); usersEls.idInput.value = '';
+        };
+
+        usersEls.btnAddUser.addEventListener('click', () => openUserModal(false));
+        usersEls.btnClose.addEventListener('click', closeUserModal);
+        usersEls.btnCancel.addEventListener('click', closeUserModal);
+
+        window.editUser = (id) => {
+            if(!isAdmin) return;
+            const u = usersData.find(x => x.id === id);
+            if(!u) return;
+            
+            usersEls.idInput.value = u.id;
+            usersEls.nameInput.value = u.name;
+            usersEls.emailInput.value = u.email;
+            usersEls.roleInput.value = u.role || 'member';
+            openUserModal(true);
+        };
+
+        // Simpan Add & Edit User
+        usersEls.form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!currentUser || !isAdmin) return; 
+
+            const id = usersEls.idInput.value;
+            const name = usersEls.nameInput.value.trim();
+            const email = usersEls.emailInput.value.trim();
+            const password = usersEls.passwordInput.value;
+            const role = usersEls.roleInput.value;
+
+            showLoading(true, "Menyimpan data...");
+            try {
+                if (id) {
+                    const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', id);
+                    await updateDoc(userRef, { name: name, role: role });
+                    closeUserModal();
+                } else {
+                    const fbConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { projectId: "mock-project-id" };
+                    const secondaryApp = initializeApp(fbConfig, "SecondaryAuthApp" + Date.now());
+                    const secondaryAuth = getAuth(secondaryApp);
+                    
+                    try {
+                        const newUserCred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+                        await updateProfile(newUserCred.user, { displayName: name });
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', newUserCred.user.uid), {
+                            name: name, email: email, role: role, createdAt: serverTimestamp()
+                        });
+                        await signOut(secondaryAuth);
+                        closeUserModal();
+                    } catch (authErr) {
+                        alert("Gagal membuat akun: " + authErr.message);
+                    }
+                }
+            } catch(err) {
+                console.error(err); alert("Terjadi kesalahan sistem saat simpan user.");
+            }
+            showLoading(false);
+        });
+
+        // Logika Hapus User
+        window.confirmDeleteUser = (id) => {
+            if(!isAdmin) return;
+            userToDelete = id;
+            usersEls.deleteModal.classList.remove('hidden'); 
+            usersEls.deleteModal.classList.add('flex');
+        };
+
+        usersEls.btnCancelDel.addEventListener('click', () => {
+            userToDelete = null; 
+            usersEls.deleteModal.classList.add('hidden'); 
+            usersEls.deleteModal.classList.remove('flex');
+        });
+
+        usersEls.btnConfirmDel.addEventListener('click', async () => {
+            if (!userToDelete || !isAdmin) return;
+            showLoading(true, "Menghapus data user...");
+            try {
+                // Menghapus data profile user dari firestore
+                const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', userToDelete);
+                await deleteDoc(userRef);
+                
+                usersEls.deleteModal.classList.add('hidden'); 
+                usersEls.deleteModal.classList.remove('flex');
+                userToDelete = null;
+            } catch (error) { 
+                console.error("Gagal hapus user:", error); 
+                alert("Terjadi kesalahan saat menghapus data user."); 
+            }
+            showLoading(false);
+        });
+
+
+        // --- TRANSACTION LOGIC ---
+        function loadData() {
+            if (!currentUser || !db) return;
+            const txRef = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
+            const q = query(txRef, orderBy("date", "desc"), orderBy("timestamp", "desc"));
+
+            showLoading(true, "Memuat transaksi...");
+            if (unsubscribeTransactions) unsubscribeTransactions();
+
+            unsubscribeTransactions = onSnapshot(q, (snapshot) => {
+                transactions = [];
+                snapshot.forEach((doc) => { transactions.push({ id: doc.id, ...doc.data() }); });
+                
+                updateMonthOptions();
+                renderTable();
+                showLoading(false);
+            }, (error) => { console.error("Error listening: ", error); showLoading(false); });
+        }
+
+        function updateMonthOptions() {
+            const months = new Set();
+            transactions.forEach(t => { if(t.date) months.add(getMonthYear(t.date)); });
+            
+            const currentSelected = appEls.filterMonth.value;
+            appEls.filterMonth.innerHTML = '<option value="all">Semua Bulan</option>';
+            
+            Array.from(months).sort().reverse().forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m; opt.textContent = getMonthName(m);
+                appEls.filterMonth.appendChild(opt);
+            });
+            if(Array.from(months).includes(currentSelected)) appEls.filterMonth.value = currentSelected;
+        }
+
+        function renderTable() {
+            const tbody = appEls.tableBody;
+            tbody.innerHTML = '';
+            
+            let filteredTx = transactions;
+            if(currentMonthFilter !== 'all') filteredTx = filteredTx.filter(t => getMonthYear(t.date) === currentMonthFilter);
+            if(currentTypeFilter !== 'all') filteredTx = filteredTx.filter(t => t.type === currentTypeFilter);
+            
+            appEls.recordCount.textContent = `${filteredTx.length} Data`;
+
+            let tBalance = 0, tIncome = 0, tExpense = 0, tReunion = 0;
+            transactions.forEach(t => {
+                const num = Number(t.amount);
+                if (t.type === 'income') { tBalance += num; tIncome += num; }
+                else if (t.type === 'expense') { tBalance -= num; tExpense += num; }
+                else if (t.type === 'reunion') { tReunion += num; }
+            });
+
+            appEls.sumBalance.textContent = formatRupiah(tBalance);
+            appEls.sumIncome.textContent = formatRupiah(tIncome);
+            appEls.sumExpense.textContent = formatRupiah(tExpense);
+            appEls.sumReunion.textContent = formatRupiah(tReunion);
+            
+            appEls.sumBalance.className = `text-2xl font-bold ${tBalance >= 0 ? 'text-blue-700' : 'text-red-600'}`;
+
+            if (filteredTx.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${isAdmin ? 6 : 5}" class="px-6 py-12 text-center text-gray-500 flex flex-col items-center justify-center gap-2">
+                    <i class="fa-solid fa-folder-open text-4xl text-gray-300"></i><br>Belum ada data untuk filter ini.
+                </td></tr>`;
+                return;
+            }
+
+            filteredTx.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.className = 'bg-white border-b hover:bg-gray-50 transition-colors';
+                
+                let typeBadge = '';
+                if (t.type === 'income') typeBadge = '<span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded border border-green-200"><i class="fa-solid fa-arrow-down mr-1"></i> Kas Masuk</span>';
+                else if (t.type === 'expense') typeBadge = '<span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded border border-red-200"><i class="fa-solid fa-arrow-up mr-1"></i> Pengeluaran</span>';
+                else typeBadge = '<span class="bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-1 rounded border border-amber-200"><i class="fa-solid fa-piggy-bank mr-1"></i> T. Reuni</span>';
+
+                const isNeg = t.type === 'expense';
+                const inputByDisplay = t.inputBy ? t.inputBy : `<span class="text-gray-400 italic text-xs">(${t.authorName || 'sistem'})</span>`;
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-gray-900">${formatDate(t.date)}</td>
+                    <td class="px-4 py-3">${typeBadge}</td>
+                    <td class="px-4 py-3 font-medium">${inputByDisplay}</td>
+                    <td class="px-4 py-3 whitespace-normal min-w-[200px]">${t.description}</td>
+                    <td class="px-4 py-3 text-right font-bold ${isNeg ? 'text-red-600' : 'text-gray-800'}">${isNeg ? '-' : ''}${formatRupiah(t.amount)}</td>
+                `;
+
+                if(isAdmin) {
+                    const tdAction = document.createElement('td');
+                    tdAction.className = "px-4 py-3 text-center";
+                    tdAction.innerHTML = `
+                        <div class="flex justify-center gap-2">
+                            <button onclick="editTransaction('${t.id}')" class="text-secondary hover:bg-blue-100 p-1.5 rounded transition-colors" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="confirmDelete('${t.id}')" class="text-red-500 hover:bg-red-100 p-1.5 rounded transition-colors" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    `;
+                    tr.appendChild(tdAction);
+                }
+                tbody.appendChild(tr);
+            });
+        }
+
+        appEls.filterMonth.addEventListener('change', (e) => { currentMonthFilter = e.target.value; renderTable(); });
+        appEls.filterType.addEventListener('change', (e) => { currentTypeFilter = e.target.value; renderTable(); });
+
+        const openModal = (isEdit = false) => {
+            modalEls.container.classList.remove('hidden'); modalEls.container.classList.add('flex');
+            if(!isEdit) {
+                modalEls.title.innerHTML = '<i class="fa-solid fa-plus-circle mr-2"></i> Catat Transaksi Baru';
+                modalEls.dateInput.value = new Date().toISOString().split('T')[0]; // Hari ini
+                modalEls.inputByInput.value = currentUser?.displayName || '';
+            } else {
+                modalEls.title.innerHTML = '<i class="fa-solid fa-pen-to-square mr-2"></i> Edit Transaksi';
+            }
+        };
+
+        const closeModal = () => {
+            modalEls.container.classList.add('hidden'); modalEls.container.classList.remove('flex');
+            modalEls.form.reset(); modalEls.idInput.value = '';
+        };
+
+        appEls.btnAdd.addEventListener('click', () => { if(isAdmin) openModal(false); });
+        modalEls.btnClose.addEventListener('click', closeModal);
+        modalEls.btnCancel.addEventListener('click', closeModal);
+
+        window.editTransaction = (id) => {
+            if(!isAdmin) return;
+            const t = transactions.find(x => x.id === id);
+            if(!t) return;
+            
+            modalEls.idInput.value = t.id;
+            modalEls.form.elements['trans-type'].value = t.type;
+            modalEls.amountInput.value = t.amount;
+            modalEls.dateInput.value = t.date;
+            modalEls.inputByInput.value = t.inputBy || '';
+            modalEls.descInput.value = t.description;
+            
+            openModal(true);
+        };
+
+        modalEls.form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!currentUser || !isAdmin) return;
+
+            const id = modalEls.idInput.value;
+            const data = {
+                type: modalEls.form.elements['trans-type'].value,
+                amount: Number(modalEls.amountInput.value),
+                date: modalEls.dateInput.value,
+                inputBy: modalEls.inputByInput.value.trim(),
+                description: modalEls.descInput.value.trim(),
+                authorId: currentUser.uid,
+                authorName: currentUser.displayName,
+                timestamp: serverTimestamp()
+            };
+
+            showLoading(true, "Menyimpan...");
+            try {
+                if (id) {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'transactions', id);
+                    await updateDoc(docRef, { ...data, timestamp: undefined }); 
+                } else {
+                    const collRef = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
+                    await addDoc(collRef, data);
+                }
+                closeModal();
+            } catch (error) {
+                console.error("Gagal simpan:", error); alert("Terjadi kesalahan saat menyimpan data.");
+            }
+            showLoading(false);
+        });
+
+        window.confirmDelete = (id) => {
+            if(!isAdmin) return;
+            transactionToDelete = id;
+            modalEls.delete.classList.remove('hidden'); modalEls.delete.classList.add('flex');
+        };
+
+        modalEls.btnCancelDel.addEventListener('click', () => {
+            transactionToDelete = null; modalEls.delete.classList.add('hidden'); modalEls.delete.classList.remove('flex');
+        });
+
+        modalEls.btnConfirmDel.addEventListener('click', async () => {
+            if (!transactionToDelete || !isAdmin) return;
+            showLoading(true, "Menghapus...");
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'transactions', transactionToDelete);
+                await deleteDoc(docRef);
+                modalEls.delete.classList.add('hidden'); modalEls.delete.classList.remove('flex');
+                transactionToDelete = null;
+            } catch (error) { console.error("Gagal hapus:", error); alert("Terjadi kesalahan."); }
+            showLoading(false);
+        });
+
+        // --- EXPORT CSV ---
+        appEls.btnExport.addEventListener('click', () => {
+            let filteredTx = transactions;
+            if(currentMonthFilter !== 'all') filteredTx = filteredTx.filter(t => getMonthYear(t.date) === currentMonthFilter);
+            if(currentTypeFilter !== 'all') filteredTx = filteredTx.filter(t => t.type === currentTypeFilter);
+
+            if(filteredTx.length === 0) { alert("Tidak ada data untuk diekspor pada filter ini."); return; }
+
+            const headers = ["Tanggal", "Tipe", "Atas Nama", "Keterangan", "Nominal (Rp)"];
+            let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
+
+            filteredTx.forEach(t => {
+                const typeName = t.type === 'income' ? 'Kas Masuk' : (t.type === 'expense' ? 'Pengeluaran' : 'Tabungan Reuni');
+                const name = t.inputBy || t.authorName || '-';
+                const row = [
+                    t.date, typeName, `"${name}"`, `"${t.description.replace(/"/g, '""')}"`, t.amount
+                ];
+                csvContent += row.join(",") + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            const fileName = `Laporan_Keuangan_Sekbang73_${currentMonthFilter}_${currentTypeFilter}.csv`;
+            link.setAttribute("download", fileName);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+    </script>
+</body>
+</html>
