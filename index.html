@@ -1228,29 +1228,32 @@
             if(!currentUser || !isAdmin) return;
 
             const id = modalEls.idInput.value;
-            const data = {
+            const baseData = {
                 type: modalEls.form.elements['trans-type'].value,
                 amount: Number(modalEls.amountInput.value),
                 date: modalEls.dateInput.value,
                 inputBy: modalEls.inputByInput.value.trim(),
                 description: modalEls.descInput.value.trim(),
                 authorId: currentUser.uid,
-                authorName: currentUser.displayName,
-                timestamp: serverTimestamp()
+                authorName: currentUser.displayName
             };
 
             showLoading(true, "Merekam transaksi...");
             try {
                 if (id) {
+                    // Update data yang sudah ada (tanpa menyertakan undefined)
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'transactions', id);
-                    await updateDoc(docRef, { ...data, timestamp: undefined }); 
+                    await updateDoc(docRef, baseData); 
                 } else {
+                    // Simpan data baru (tambahkan serverTimestamp)
                     const collRef = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
-                    await addDoc(collRef, data);
+                    await addDoc(collRef, { ...baseData, timestamp: serverTimestamp() });
                 }
                 closeModal();
             } catch (error) {
-                console.error("Gagal simpan:", error); alert("Terjadi gangguan saat menyimpan ke database.");
+                console.error("Gagal simpan:", error); 
+                // Tampilkan pesan error bawaan Firebase agar lebih mudah diperbaiki jika ada masalah lain
+                alert("Gagal menyimpan: " + error.message);
             }
             showLoading(false);
         });
