@@ -132,6 +132,7 @@
                                 <i class="fa-solid fa-lock text-gray-400"></i>
                             </div>
                             <input type="password" id="login-password" class="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none transition-all focus:bg-white" placeholder="••••••••" required>
+                            <!-- Tombol Lihat Password -->
                             <button type="button" id="toggle-login-pwd" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none transition-colors">
                                 <i class="fa-solid fa-eye" id="icon-login-pwd"></i>
                             </button>
@@ -170,6 +171,7 @@
                                 <i class="fa-solid fa-lock text-gray-400"></i>
                             </div>
                             <input type="password" id="reg-password" class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-gray-50 focus:bg-white transition-colors" placeholder="Minimal 6 karakter" minlength="6" required>
+                            <!-- Tombol Lihat Password -->
                             <button type="button" id="toggle-reg-pwd" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none transition-colors">
                                 <i class="fa-solid fa-eye" id="icon-reg-pwd"></i>
                             </button>
@@ -515,7 +517,7 @@
                 </div>
 
                 <div id="user-password-group">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Password Awal <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Password <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fa-solid fa-key text-gray-400"></i></div>
                         <input type="text" id="user-form-password" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none focus:bg-white transition-all text-gray-700 font-mono text-sm" placeholder="Minimal 6 karakter" minlength="6">
@@ -577,7 +579,7 @@
     <!-- JAVASCRIPT LOGIC (Firebase Module) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         document.getElementById('current-year').textContent = new Date().getFullYear();
@@ -669,10 +671,12 @@
         // --- Utils ---
         const formatRupiah = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
         const formatDate = (dateString) => {
+            if(!dateString) return '-';
             const options = { day: '2-digit', month: 'short', year: 'numeric' };
             return new Date(dateString).toLocaleDateString('id-ID', options);
         };
         const getMonthYear = (dateString) => {
+            if(!dateString) return '';
             const d = new Date(dateString);
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
         };
@@ -767,11 +771,6 @@
                 
                 if (unsubscribeTransactions) { unsubscribeTransactions(); unsubscribeTransactions = null; }
                 if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
-                
-                if(!hasExplicitlyLoggedOut && typeof __env !== 'undefined' && __env.USER_TOKEN) {
-                    showLoading(true, "Auto-login...");
-                    try { await signInWithCustomToken(auth, __env.USER_TOKEN); } catch (e) { showLoading(false); }
-                }
             }
         });
 
@@ -879,7 +878,7 @@
         function loadUsersData() {
             if (!currentUser || !isAdmin || !db) return;
             const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
-            const q = query(usersRef);
+            const q = query(usersRef); // Disederhanakan untuk mencegah index error
 
             showLoading(true, "Mengambil data anggota...");
             if (unsubscribeUsers) unsubscribeUsers();
@@ -889,7 +888,11 @@
                 snapshot.forEach((doc) => { usersData.push({ id: doc.id, ...doc.data() }); });
                 renderUsersTable();
                 showLoading(false);
-            }, (error) => { showLoading(false); });
+            }, (error) => { 
+                console.error("Error User Data:", error); 
+                alert("Gagal memuat data anggota: Cek Hak Akses Firebase Anda.");
+                showLoading(false); 
+            });
         }
 
         function renderUsersTable() {
@@ -898,6 +901,7 @@
                 usersEls.tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400">Belum ada data anggota tambahan.</td></tr>`; return;
             }
 
+            // Pengurutan manual via JS
             usersData.sort((a, b) => {
                 if (a.role === 'admin' && b.role !== 'admin') return -1;
                 if (a.role !== 'admin' && b.role === 'admin') return 1;
@@ -947,7 +951,6 @@
                 usersEls.emailHelp.innerHTML = '<i class="fa-solid fa-circle-info text-blue-400"></i> Email ini digunakan untuk login sistem.';
             } else {
                 usersEls.title.innerHTML = '<i class="fa-solid fa-user-pen text-gray-700"></i> Edit Data User';
-                // Dibuat tetap tampil agar admin bisa mengubah password user jika diperlukan
                 usersEls.passwordGroup.classList.remove('hidden'); 
                 usersEls.passwordInput.required = false;
                 usersEls.passwordInput.placeholder = "Kosongkan jika tidak ingin diubah";
@@ -973,7 +976,7 @@
             usersEls.idInput.value = u.id;
             usersEls.nameInput.value = u.name;
             usersEls.emailInput.value = u.email;
-            usersEls.passwordInput.value = ''; // Reset field password saat edit dibuka
+            usersEls.passwordInput.value = ''; 
             usersEls.roleInput.value = u.role || 'member';
             openUserModal(true);
         };
@@ -994,11 +997,9 @@
                     const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', id);
                     await updateDoc(userRef, { name: name, role: role });
                     
-                    // Jika admin mengisi password baru saat edit, beri catatan bahwa password memerlukan update via auth atau info
                     if (password && password.length >= 6) {
-                        // Catatan: Update password via client SDK memerlukan re-auth atau Firebase Admin SDK. 
-                        // Namun untuk kemudahan di aplikasi front-end single-file ini, kita simpan status / berikan notifikasi sukses profil terupdate.
                         console.log("Password baru diinput untuk user ID:", id);
+                        // Implementasi update password dari client memerlukan Auth Admin SDK/re-auth.
                     }
                     
                     closeUserModal();
@@ -1057,7 +1058,10 @@
         function loadData() {
             if (!currentUser || !db) return;
             const txRef = collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
-            const q = query(txRef, orderBy("date", "desc"), orderBy("timestamp", "desc"));
+            
+            // PENTING: Disederhanakan untuk MENCEGAH Error Missing Index Firestore
+            // Pengurutan akan dilakukan menggunakan JavaScript di bawah
+            const q = query(txRef); 
 
             showLoading(true, "Mensinkronisasi data keuangan...");
             if (unsubscribeTransactions) unsubscribeTransactions();
@@ -1066,10 +1070,28 @@
                 transactions = [];
                 snapshot.forEach((doc) => { transactions.push({ id: doc.id, ...doc.data() }); });
                 
+                // MENGURUTKAN DATA VIA JAVASCRIPT
+                transactions.sort((a, b) => {
+                    // Urutkan Tanggal (Terbaru ke Terlama)
+                    const dateA = new Date(a.date || 0).getTime();
+                    const dateB = new Date(b.date || 0).getTime();
+                    
+                    if (dateB !== dateA) return dateB - dateA;
+                    
+                    // Jika tanggal sama, urutkan berdasarkan waktu simpan (Timestamp)
+                    const timeA = a.timestamp?.seconds || 0;
+                    const timeB = b.timestamp?.seconds || 0;
+                    return timeB - timeA;
+                });
+                
                 updateMonthOptions();
                 renderTable();
                 showLoading(false);
-            }, (error) => { console.error("Error listening: ", error); showLoading(false); });
+            }, (error) => { 
+                console.error("Error listening Data: ", error); 
+                alert("Gagal memuat transaksi: " + error.message + " (Mohon Cek Security Rules Database Anda)");
+                showLoading(false); 
+            });
         }
 
         function updateMonthOptions() {
@@ -1080,9 +1102,11 @@
             appEls.filterMonth.innerHTML = '<option value="all">Semua Bulan</option>';
             
             Array.from(months).sort().reverse().forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m; opt.textContent = getMonthName(m);
-                appEls.filterMonth.appendChild(opt);
+                if (m) {
+                    const opt = document.createElement('option');
+                    opt.value = m; opt.textContent = getMonthName(m);
+                    appEls.filterMonth.appendChild(opt);
+                }
             });
             if(Array.from(months).includes(currentSelected)) appEls.filterMonth.value = currentSelected;
         }
@@ -1099,7 +1123,7 @@
 
             let tBalance = 0, tIncome = 0, tExpense = 0, tReunion = 0;
             transactions.forEach(t => {
-                const num = Number(t.amount);
+                const num = Number(t.amount || 0);
                 if (t.type === 'income') { tBalance += num; tIncome += num; }
                 else if (t.type === 'expense') { tBalance -= num; tExpense += num; }
                 else if (t.type === 'reunion') { tReunion += num; }
@@ -1317,7 +1341,7 @@
         manifestLink.href = manifestUrl;
         document.head.appendChild(manifestLink);
 
-        // 2. Registrasi Service Worker Virtual (Diperlukan oleh beberapa browser untuk PWA Install)
+        // 2. Registrasi Service Worker Virtual
         if ('serviceWorker' in navigator) {
             const swCode = `
                 self.addEventListener('install', (e) => { self.skipWaiting(); });
@@ -1329,7 +1353,7 @@
             
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register(swUrl).catch(err => {
-                    console.log('PWA Service Worker Blob diregistrasi.');
+                    console.log('PWA Service Worker Blob gagal diregistrasi.', err);
                 });
             });
         }
@@ -1339,14 +1363,10 @@
         const pwaInstallBtn = document.getElementById('pwa-install-btn');
 
         window.addEventListener('beforeinstallprompt', (e) => {
-            // Mencegah browser menampilkan banner install otomatis bawaan
             e.preventDefault();
-            // Simpan event untuk di-trigger oleh tombol kita nanti
             deferredPrompt = e;
-            // Tampilkan tombol Install kita
             if(pwaInstallBtn) {
                 pwaInstallBtn.classList.remove('hidden');
-                // Hentikan efek animasi loncat setelah 6 detik agar tidak mengganggu
                 setTimeout(() => pwaInstallBtn.classList.remove('animate-bounce'), 6000); 
             }
         });
@@ -1354,11 +1374,9 @@
         if(pwaInstallBtn) {
             pwaInstallBtn.addEventListener('click', async () => {
                 if (deferredPrompt) {
-                    // Munculkan dialog install asli dari browser
                     deferredPrompt.prompt();
                     const { outcome } = await deferredPrompt.userChoice;
                     if (outcome === 'accepted') {
-                        // Sembunyikan tombol jika user setuju install
                         pwaInstallBtn.classList.add('hidden');
                     }
                     deferredPrompt = null;
@@ -1368,7 +1386,7 @@
         
         window.addEventListener('appinstalled', () => {
             if(pwaInstallBtn) pwaInstallBtn.classList.add('hidden');
-            console.log('PWA berhasil diinstal pada perangkat!');
+            console.log('PWA berhasil diinstal!');
         });
     </script>
 </body>
