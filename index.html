@@ -597,9 +597,8 @@
         let currentMonthFilter = 'all';
         let currentTypeFilter = 'all';
         let transactionToDelete = null;
-        let userToDelete = null; 
+        let userToDelete = null; // State untuk menghapus user
 
-        // Initialize Firebase
         try {
             const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
                 apiKey: "AIzaSyBiiTUcULMRCM_4FyAX8nSx1Rj1xCdJGSw",
@@ -614,6 +613,14 @@
             db = getFirestore(app);
             auth = getAuth(app);
             console.log("Firebase initialized");
+
+            // LOGIKA PWA: Paksa mulai dari halaman login saat aplikasi baru saja selesai diinstal (Mode Standalone)
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            if (isStandalone && !localStorage.getItem('pwa_first_launch_done')) {
+                localStorage.setItem('pwa_first_launch_done', 'true');
+                signOut(auth).catch(err => console.log(err));
+            }
+
         } catch (error) {
             console.error("Firebase init error:", error);
             showError("Gagal menghubungkan ke database server.");
